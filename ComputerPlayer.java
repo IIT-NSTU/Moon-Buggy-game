@@ -5,18 +5,18 @@ class ComputerPlayer extends Vehicle {
         super("Computer");
     }
 
-    @Override
-    int getPositionX() {
+   
+    int get_posX() {
         Random random = new Random();
         int move = random.nextInt(3) - 1;
-        return super.getPositionX() + move;
+        return super.get_posX() + move;
     }
 
-    @Override
-    int getPositionY() {
+   
+    int get_posY() {
         Random random = new Random();
         int move = random.nextInt(3) - 1;
-        return super.getPositionY() + move;
+        return super.get_posY() + move;
     }
 }
 
