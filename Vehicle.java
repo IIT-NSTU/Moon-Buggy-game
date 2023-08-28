@@ -1,28 +1,28 @@
 class Vehicle {
     String name;
-    int positionX;
-    int positionY;
+    int posX;
+    int posY;
 
     Vehicle(String name) {
         this.name = name;
-        this.positionX = 0;
-        this.positionY = 0;
+        this.posX = 0;
+        this.posY = 0;
     }
 
     String getName() {
         return name;
     }
 
-    int getPositionX() {
-        return positionX;
+    int get_posX() {
+        return posX;
     }
 
-    int getPositionY() {
-        return positionY;
+    int get_posY() {
+        return posY;
     }
 
-    void setPosition(int positionX, int positionY) {
-        this.positionX = positionX;
-        this.positionY = positionY;
+    void set_pos(int posX, int posY) {
+        this.posX = posX;
+        this.posY = posY;
     }
 }
