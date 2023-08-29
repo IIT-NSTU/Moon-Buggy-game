@@ -21,13 +21,15 @@ class Enemy {
     }
 
     void attack(Vehicle player) {
-        int playerX = player.get_posX();
-        int playerY = player.get_posY();
+    int playerX = player.get_posX();
+    int playerY = player.get_posY();
 
-        if (Math.abs(playerX - posX) <= 1 && Math.abs(playerY - posY) <= 1) {
-            System.out.println("Collision! " + getName() + " attacked " + player.getName() + "!");
-        }
+    if (Math.abs(playerX - posX) <= 1 && Math.abs(playerY - posY) <= 1) {
+        System.out.println("Collision! " + getName() + " attacked " + player.getName() + "!");
+        player.eliminate(); // Eliminate the player
     }
+}
+
 
     String getName() {
         return "Enemy";
