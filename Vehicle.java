@@ -2,11 +2,13 @@ class Vehicle {
     String name;
     int posX;
     int posY;
+    boolean isEliminated;
 
     Vehicle(String name) {
         this.name = name;
         this.posX = 0;
         this.posY = 0;
+        this.isEliminated = false; // Initialize to false
     }
 
     String getName() {
@@ -25,4 +27,15 @@ class Vehicle {
         this.posX = posX;
         this.posY = posY;
     }
+
+    boolean isEliminated() {
+        return isEliminated;
+    }
+
+    void eliminate() {
+        isEliminated = true;
+    }
 }
+
+
+
