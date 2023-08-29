@@ -1,4 +1,5 @@
- 
+
+
 import java.util.*;
 
 class MoonBuggyGame {
@@ -12,59 +13,64 @@ class MoonBuggyGame {
     List<Enemy> enemies = new ArrayList<>();
     Moon_surface moonSurface;
 
- void playGame() {
-    System.out.println("Welcome to Moon Buggy ");
-    System.out.println("Choose a game mode:");
-    System.out.println("1. Single Player");
-    System.out.println("2. Player vs Player");
-    int game_mode = scanner.nextInt();
+    int min_distance_to_win = 5;       // Minimum distance to win
+    int min_energy_to_continue = 10;   // Minimum energy to continue
 
-    if (game_mode == 1) {
-        init_players(1);
-    } else if (game_mode == 2) {
-        init_players(2);
-    } else {
-        System.out.println("Invalid game mode selection. Exiting the game.");
-        return;
-    }
+    void playGame() {
+        System.out.println("Welcome to Moon Buggy ");
+        System.out.println("Choose a game mode:");
+        System.out.println("1. Single Player");
+        System.out.println("2. Player vs Player");
+        int game_mode = scanner.nextInt();
 
-    energy = 50;
+        if (game_mode == 1) {
+            init_players(1);
+        } else if (game_mode == 2) {
+            init_players(2);
+        } else {
+            System.out.println("Invalid game mode selection. Exiting the game.");
+            return;
+        }
 
-    init_enemies();
+        energy = 50;
 
-    moonSurface = new Moon_surface(grid_size);
+        init_enemies();
 
-    while (!game_over) {
-        for (Vehicle player : players) {
-            if (player != null) {
-                playTurn(player);
-                if (game_over) {
-                    break;
+        moonSurface = new Moon_surface(grid_size);
+
+        while (!game_over) {
+            for (Vehicle player : players) {
+                if (player != null) {
+                    playTurn(player, game_mode);
+                    if (game_over) {
+                        break;
+                    }
                 }
             }
         }
-    }
 
-    System.out.println("Game Over. Thanks for playing!");
-    if (players[0] != null && players[1] != null) {
-        if (players[0].isEliminated() && players[1].isEliminated()) {
-            System.out.println("Both players are out of energy. It's a draw!");
-        } else if (players[0].isEliminated()) {
-            System.out.println(players[1].getName() + " wins!");
-        } else if (players[1].isEliminated()) {
+        System.out.println("Game Over. Thanks for playing!");
+
+        if (players[0] != null && players[1] != null) {
+            // ... (existing code)
+            if (players[0].isEliminated() && players[1].isEliminated()) {
+                System.out.println("Both players are out of energy. It's a draw!");
+            } else if (players[0].isEliminated()) {
+                System.out.println(players[1].getName() + " wins!");
+            } else if (players[1].isEliminated()) {
+                System.out.println(players[0].getName() + " wins!");
+            } else {
+                System.out.println("Both players have reached the goal!");
+            }
+
+        } else if (players[0] != null) {
             System.out.println(players[0].getName() + " wins!");
+        } else if (players[1] != null) {
+            System.out.println(players[1].getName() + " wins!");
         } else {
-            System.out.println("Both players have reached the goal!");
+            System.out.println("No valid players to determine a winner.");
         }
-    } else if (players[0] != null) {
-        System.out.println(players[0].getName() + " wins!");
-    } else if (players[1] != null) {
-        System.out.println(players[1].getName() + " wins!");
-    } else {
-        System.out.println("No valid players to determine a winner.");
     }
-}
-
 
     void init_players(int num_players) {
         for (int i = 0; i < num_players; i++) {
@@ -73,11 +79,18 @@ class MoonBuggyGame {
             players[i] = new Vehicle(player_name);
         }
     }
-    void playTurn(Vehicle player) {
+
+    void playTurn(Vehicle player, int game_mode) {
         clearConsole(); // Clear the console before displaying game state
         display_game_state(player);
         moonSurface.display(player.get_posX(), player.get_posY(), get_enemy_pos());
-    
+
+        if (game_mode == 1) {  // Single Player
+            if (Math.random() < 0.5) {  // 50% chance of enemy attack
+                enemyAttack(player);
+            }
+        }
+
         System.out.print(player.getName() + ", enter 'F' to move forward, 'B' to move backward, 'U' to move up, 'D' to move down, 'E' to make enemies escape, 'Q' to quit: ");
         String input = scanner.next();
         switch (input.toUpperCase()) {
@@ -103,14 +116,12 @@ class MoonBuggyGame {
                 System.out.println("Invalid input.");
         }
         energy--;
-    
+
         updateGame(player);
-        enemyAttack(player);
         check_collis(player);
     }
-    
-    
 
+    // ... (existing methods)
     void init_enemies() {
         Random random = new Random();
         int num_enemies = random.nextInt(3) + 2;
@@ -175,13 +186,13 @@ class MoonBuggyGame {
             clearConsole(); // Clear the console before displaying updated game state
             display_game_state(player);
             moonSurface.display(player.get_posX(), player.get_posY(), get_enemy_pos());
-    
+
             if (player.isEliminated()) {
                 System.out.println(player.getName() + " has been eliminated!");
             }
         }
     }
-    
+
 
     void check_collis(Vehicle player) {
         for (Enemy enemy : enemies) {
@@ -200,8 +211,13 @@ class MoonBuggyGame {
     }
 
     void clearConsole() {
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
+        for (int i = 0; i < 50; i++) {
+            System.out.println();
+        }
     }
-    
+
 }
+
+
+
+
