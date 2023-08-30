@@ -25,23 +25,23 @@ class Moon_surface {
         }
     }
 
-   void updateGrid(int player_posX, int player_posY, int[] enemy_pos) {
-    for (int row = 0; row < grid_size; row++) {
-        Arrays.fill(grid[row], ' ');
-    }
+    void updateGrid(int player_posX, int player_posY, int[] enemy_pos) {
+        for (int row = 0; row < grid_size; row++) {
+            Arrays.fill(grid[row], ' ');
+        }
 
-    grid[player_posY][player_posX] = 'P';
+        grid[player_posY][player_posX] = 'P';
 
-    for (int i = 0; i < enemy_pos.length; i += 2) {
-        int enemyX = enemy_pos[i];
-        int enemyY = enemy_pos[i + 1];
+        for (int i = 0; i < enemy_pos.length; i += 2) {
+            int enemyX = enemy_pos[i];
+            int enemyY = enemy_pos[i + 1];
 
-        if (enemyX != -1 && enemyY != -1) {
-            grid[enemyY][enemyX] = 'E';
+            if (enemyX != -1 && enemyY != -1) {
+                grid[enemyY][enemyX] = 'E';
+            }
         }
     }
-}
- 
+
 
     void mark_collis(int x, int y) {
         if (x >= 0 && x < grid_size && y >= 0 && y < grid_size) {
