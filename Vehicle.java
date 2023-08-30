@@ -1,14 +1,17 @@
+
 class Vehicle {
     String name;
     int posX;
     int posY;
-    boolean isEliminated;
+    boolean is_eliminated;
+    public boolean is_enemy;
 
     Vehicle(String name) {
         this.name = name;
         this.posX = 0;
         this.posY = 0;
-        this.isEliminated = false; // Initialize to false
+        this.is_eliminated = false;
+        this.is_enemy = is_enemy;
     }
 
     String getName() {
@@ -28,13 +31,19 @@ class Vehicle {
         this.posY = posY;
     }
 
-    boolean isEliminated() {
-        return isEliminated;
+    boolean is_eliminated() {
+        return is_eliminated;
     }
 
-    void eliminate() {
-        isEliminated = true;
+
+    public void eliminate() {
+        is_eliminated = true;
     }
+
+    public int getEnergy() {
+        return 0;
+    }
+
 }
 
 
