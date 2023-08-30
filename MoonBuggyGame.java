@@ -1,5 +1,4 @@
 
-
 import java.util.*;
 
 class MoonBuggyGame {
@@ -13,7 +12,7 @@ class MoonBuggyGame {
     List<Enemy> enemies = new ArrayList<>();
     Moon_surface moonSurface;
 
-    int min_distance_to_win = 5;       // Minimum distance to win
+    int min_distance_to_win = 16;       // Minimum distance to win
     int min_energy_to_continue = 10;   // Minimum energy to continue
 
     void playGame() {
@@ -50,27 +49,39 @@ class MoonBuggyGame {
         }
 
         System.out.println("Game Over. Thanks for playing!");
-
-        if (players[0] != null && players[1] != null) {
-            // ... (existing code)
-            if (players[0].isEliminated() && players[1].isEliminated()) {
-                System.out.println("Both players are out of energy. It's a draw!");
-            } else if (players[0].isEliminated()) {
-                System.out.println(players[1].getName() + " wins!");
-            } else if (players[1].isEliminated()) {
+        if (game_mode == 1) {  // Single Player
+            if (players[0].is_eliminated()) {
+                System.out.println(players[0].getName() + ", you lose the game environment!");
+                System.out.print("Press enter to quit...");
+                scanner.nextLine(); // Wait for user to press enter before quitting
+            } else if (players[0].get_posX() >= min_distance_to_win && players[0].getEnergy() > 0) {
                 System.out.println(players[0].getName() + " wins!");
-            } else {
-                System.out.println("Both players have reached the goal!");
+            }           else {
+                System.out.println(players[0].getName() + " couldn't meet the winning conditions.");
             }
+        }
 
-        } else if (players[0] != null) {
-            System.out.println(players[0].getName() + " wins!");
-        } else if (players[1] != null) {
-            System.out.println(players[1].getName() + " wins!");
-        } else {
-            System.out.println("No valid players to determine a winner.");
+        else if (game_mode == 2) {  // Player vs Player
+            if (players[0] != null && players[1] != null) {
+                if (players[0].is_eliminated() && players[1].is_eliminated()) {
+                    System.out.println("Both players are out of energy. It's a draw!");
+                } else if (players[0].is_eliminated()) {
+                    System.out.println(players[1].getName() + " wins!");
+                } else if (players[1].is_eliminated()) {
+                    System.out.println(players[0].getName() + " wins!");
+                } else {
+                    System.out.println("Both players have reached the goal!");
+                }
+            } else if (players[0] != null) {
+                System.out.println(players[0].getName() + " wins!");
+            } else if (players[1] != null) {
+                System.out.println(players[1].getName() + " wins!");
+            } else {
+                System.out.println("No valid players to determine a winner.");
+            }
         }
     }
+
 
     void init_players(int num_players) {
         for (int i = 0; i < num_players; i++) {
@@ -81,15 +92,47 @@ class MoonBuggyGame {
     }
 
     void playTurn(Vehicle player, int game_mode) {
-        clearConsole(); // Clear the console before displaying game state
+        clear_console(); // Clear the console before displaying game state
         display_game_state(player);
         moonSurface.display(player.get_posX(), player.get_posY(), get_enemy_pos());
 
         if (game_mode == 1) {  // Single Player
             if (Math.random() < 0.5) {  // 50% chance of enemy attack
-                enemyAttack(player);
+                if (enemyAttack(player)) {
+                    System.out.println(player.getName() + ", you lose the game!");
+                    System.out.print("Press enter to quit...");
+                    scanner.nextLine(); // Wait for user to press enter before quitting
+                    game_over = true;
+                    return; // Player is eliminated, exit the turn
+                }
+            }
+            if (player.get_posX() >= 16 && player.getEnergy() > 0) {
+                System.out.println(player.getName() + " wins!");
+                game_over = true;
+                return;
+            }
+        } else if (game_mode == 2) {  // Player vs Player
+            for (Vehicle p : players) {
+                if (p != null) {
+                    if (Math.random() < 0.5) {  // 50% chance of enemy attack
+                        if (enemyAttack(p)) {
+                            System.out.println(p.getName() + " loses the game environment!");
+                            System.out.print("Press enter to quit...");
+                            scanner.nextLine(); // Wait for user to press enter before quitting
+                            p.eliminate();
+                        }
+                    }
+                    if (p.get_posX() >= min_distance_to_win && p.getEnergy() > 0) {
+                        System.out.println(p.getName() + " wins!");
+                        game_over = true;
+                        return;
+                    }
+                }
             }
         }
+
+
+
 
         System.out.print(player.getName() + ", enter 'F' to move forward, 'B' to move backward, 'U' to move up, 'D' to move down, 'E' to make enemies escape, 'Q' to quit: ");
         String input = scanner.next();
@@ -119,9 +162,34 @@ class MoonBuggyGame {
 
         updateGame(player);
         check_collis(player);
+        if (game_mode == 1 && player.get_posX() >= min_distance_to_win && player.getEnergy() > 0) {
+            System.out.println("Congratulations! " + player.getName() + " wins!");
+            game_over = true;
+        }
+        if (game_mode == 2) {  // Player vs Player
+            if (player.get_posX() >= min_distance_to_win && player.getEnergy() > 0) {
+                System.out.println("Congratulations! " + player.getName() + " wins!");
+                game_over = true;
+            }
+        }
     }
 
-    // ... (existing methods)
+    // ... (existing code)
+
+    boolean check_collis(Vehicle player) {
+        for (Enemy enemy : enemies) {
+            if (enemy.get_posX() == player.get_posX() && enemy.get_posY() == player.get_posY()) {
+                System.out.println("Collision! " + enemy.getName() + " attacked " + player.getName() + "!");
+                energy -= 10;
+                moonSurface.mark_collis(player.get_posX(), player.get_posY());
+                player.eliminate(); // Eliminate the player
+                System.out.println(enemy.getName() + " loses the game  due to collision!");
+                return true; // Return true if collision occurs
+            }
+        }
+        return false; // Return false if no collision occurs
+    }
+
     void init_enemies() {
         Random random = new Random();
         int num_enemies = random.nextInt(3) + 2;
@@ -141,20 +209,28 @@ class MoonBuggyGame {
         }
         return enemy_pos;
     }
-
     void movePlayer(Vehicle player, int directionX, int directionY) {
         int new_posX = player.get_posX() + directionX;
         int new_posY = player.get_posY() + directionY;
-        if (new_posX >= 0 && new_posX < grid_size && new_posY >= 0 && new_posY < grid_size) {
-            player.set_pos(new_posX, new_posY);
-            distance++;
-        } else {
-            System.out.println("Can't move there.");
+
+        if (new_posX < 0) {
+            new_posX = grid_size - 1; // Wrap around to the last column
+        } else if (new_posX >= grid_size) {
+            new_posX = 0; // Wrap around to the first column
         }
+
+        if (new_posY < 0) {
+            new_posY = grid_size - 1; // Wrap around to the bottom row
+        } else if (new_posY >= grid_size) {
+            new_posY = 0; // Wrap around to the top row
+        }
+
+        player.set_pos(new_posX, new_posY);
+        distance++;
     }
 
     void updateGame(Vehicle player) {
-        if (distance >= grid_size) {
+        if (distance >= min_distance_to_win) {  // Adjust the condition here
             if (energy > 0) {
                 System.out.println("Congratulations! " + player.getName() + " wins!");
             } else {
@@ -168,14 +244,14 @@ class MoonBuggyGame {
         }
     }
 
+
     void escape_enemies() {
         for (Enemy enemy : enemies) {
             enemy.escape();
         }
         System.out.println("Enemies have escaped!");
     }
-
-    void enemyAttack(Vehicle player) {
+    boolean enemyAttack(Vehicle player) {
         for (Enemy enemy : enemies) {
             enemy.attack(player);
             try {
@@ -183,26 +259,18 @@ class MoonBuggyGame {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            clearConsole(); // Clear the console before displaying updated game state
+            clear_console(); // Clear the console before displaying updated game state
             display_game_state(player);
             moonSurface.display(player.get_posX(), player.get_posY(), get_enemy_pos());
 
-            if (player.isEliminated()) {
+            if (player.is_eliminated()) {
                 System.out.println(player.getName() + " has been eliminated!");
+                return true; // Player is eliminated by enemy attack
             }
         }
+        return false; // Player is not eliminated by enemy attack
     }
 
-
-    void check_collis(Vehicle player) {
-        for (Enemy enemy : enemies) {
-            if (enemy.get_posX() == player.get_posX() && enemy.get_posY() == player.get_posY()) {
-                System.out.println("Collision! " + enemy.getName() + " attacked " + player.getName() + "!");
-                energy -= 10;
-                moonSurface.mark_collis(player.get_posX(), player.get_posY());
-            }
-        }
-    }
 
     void display_game_state(Vehicle player) {
         System.out.println("Distance: " + distance);
@@ -210,13 +278,17 @@ class MoonBuggyGame {
         System.out.println(player.getName() + " position: (" + player.get_posX() + ", " + player.get_posY() + ")");
     }
 
-    void clearConsole() {
+    void clear_console() {
         for (int i = 0; i < 50; i++) {
             System.out.println();
         }
     }
-
 }
+
+
+
+
+
 
 
 
